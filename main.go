@@ -1,28 +1,30 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
-
-	fmt.Fprintf(w, "hello\n")
-}
-
-func headers(w http.ResponseWriter, req *http.Request) {
-
-	for name, headers := range req.Header {
-		for _, h := range headers {
-			fmt.Fprintf(w, "%v: %v\n", name, h)
-		}
-	}
+type Time struct {
+	CurrentTime string `json:"current_time"`
 }
 
 func main() {
+	// defining router
+	mux := http.NewServeMux()
+	mux.HandleFunc("/time", getTime)
 
-	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/headers", headers)
+	// starting server
+	fmt.Println("Server is running at 127.0.0.1:8080")
+	log.Fatal(http.ListenAndServe(":8087", mux))
+}
 
-	http.ListenAndServe(":8090", nil)
+func getTime(w http.ResponseWriter, r *http.Request) {
+	currentTime := []Time{
+		{CurrentTime: http.TimeFormat},
+	}
+
+	json.NewEncoder(w).Encode(currentTime)
 }
